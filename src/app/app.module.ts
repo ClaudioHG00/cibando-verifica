@@ -14,6 +14,7 @@ import { HttpClientModule } from '@angular/common/http';
 import {ToastModule} from 'primeng/toast';
 import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
 import { MessageService } from 'primeng/api';
+// import { MatRippleModule } from '@angular/material/core';
 
 import { RecipesModule } from './components/recipes/recipes.module';
 
@@ -29,7 +30,7 @@ import { EsempioComponent } from './components/esempio/esempio.component';
 import { LoginComponent } from './components/user/login/login.component';
 import { ProfileComponent } from './components/user/profile/profile.component';
 import { VideoComponent } from './components/video/video.component';
-
+import { DarkenBgDirective } from './directives/darken-bg.directive';
 
 
 @NgModule({
@@ -46,6 +47,7 @@ import { VideoComponent } from './components/video/video.component';
     LoginComponent,
     ProfileComponent,
     VideoComponent,
+    DarkenBgDirective,
   ],
   imports: [
     BrowserModule,
@@ -63,7 +65,8 @@ import { VideoComponent } from './components/video/video.component';
     PaginatorModule,
     ToastModule,
     CKEditorModule,
-    RecipesModule
+    RecipesModule,
+    // MatRippleModule,
   ],
   // schemas: [ CUSTOM_ELEMENTS_SCHEMA ], // Must add this one.
   providers: [ MessageService],

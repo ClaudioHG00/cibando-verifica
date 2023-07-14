@@ -10,25 +10,91 @@
   <p-paginator [rows]="ricettePerPagina" [totalRecords]="totRicette.length" (onPageChange)="paginate($event)" (rowsPerPageOptionsChange)="ricettePerPagina"></p-paginator>
 </div>
 
+<!-- <ng-template *ngIf=""> -->
+
   <div class="card" *ngFor="let ricetta of ricette | slice: (page * ricettePerPagina) - ricettePerPagina : page * ricettePerPagina">
-    <div class="card-image" [ngStyle]="{'background-image': 'url('+ ricetta.image + ')'}" (click)="inviaTitolo(ricetta.title)"></div>
-    <div class="card-body">
-      <h5 class="card-title">{{ricetta.title}}</h5>
-      <!-- <p class="card-text">{{ricetta.description | slice: 0:250}}...</p> -->
-      <p class="card-text"><span [innerHTML]="ricetta.description |slice: 0:250"></span>...</p>
-      <div class="row">
-        <h4 class="difficolta-title">Difficoltà: </h4>
+      <div class="card-image" [ngStyle]="{'background-image': 'url('+ ricetta.image + ')'}" (click)="inviaTitolo(ricetta.title)"></div>
+      <div class="card-body">
+        <h5 class="card-title">{{ricetta.title}}</h5>
+        <!-- <p class="card-text">{{ricetta.description | slice: 0:250}}...</p> -->
+        <p class="card-text"><span [innerHTML]="ricetta.description |slice: 0:250"></span>...</p>
         <div class="row">
-          <img [src]="percorsoDifficolta+ricetta.difficulty + '.png'" class="difficolta" alt="difficolta">
+          <h4 class="difficolta-title">Difficoltà: </h4>
+          <div class="row">
+            <img [src]="percorsoDifficolta+ricetta.difficulty + '.png'" class="difficolta" alt="difficolta">
+          </div>
         </div>
+        <div class="card-icon-favorite">
+          <i class="pi pi-heart favorite-icon" (click)="salvaRicetta()" style="cursor: pointer"></i>
+        </div>
+        <div class="visualizza">
+          <a class="btn btn-primary" routerLink="/ricette/dettaglio/{{ricetta.title}}/{{ricetta._id}}">Visualizza</a>
+          <!-- <a class="btn btn-primary" [routerLink]="'dettaglio/' + recipe.title +'/'+ recipe._id">Dettaglio</a> -->
+        </div>
+        <div class="card-icons" *ngIf="isAdminUser">
+          <!-- <a matRipple matRippleCentered="true" matRippleRadius="40" matRippleUnbounded="true" matRippleColor="#b64665766"> -->
+            <!-- <i class="pi pi-trash"></i> -->
+          <!-- </a> -->
+          <i class="pi pi-trash icon" (click)="openModal(modalDelete)" style="cursor: pointer"></i>
+          <i *ngIf="ricetta.published; else notPublishedIcon" class="pi pi-eye icon" (click)="pubblicaRicetta(ricetta._id.toString())" style="cursor: pointer"></i>
+          <ng-template #notPublishedIcon>
+            <i class="pi pi-eye-slash icon" (click)="pubblicaRicetta(ricetta._id.toString())" style="cursor: pointer"></i>
+          </ng-template>
+          <i class="pi pi-file-edit icon" (click)="openModal(modalModify)" style="cursor: pointer"></i>
+        </div>
+
       </div>
-      <div class="visualizza">
-        <a class="btn btn-primary" routerLink="/ricette/dettaglio/{{ricetta.title}}/{{ricetta._id}}">Visualizza</a>
-        <!-- <a class="btn btn-primary" [routerLink]="'dettaglio/' + recipe.title +'/'+ recipe._id">Dettaglio</a> -->
-      </div>
+      <ng-template #modalDelete let-modal>
+        <div class="modal-header">
+          <h2><strong>Attenzione</strong></h2>
+          <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()" style="cursor: pointer"></button>
+        </div>
+        <div class="modal-body">
+          <h6><strong>Stai eliminando questa ricetta:</strong></h6>
+          <div class="dettagli">
+            <div class="container-img">
+              <img [src]="ricetta.image">
+            </div>
+            <h6><strong>{{ricetta.title}}</strong></h6>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn" aria-label="cancel" (click)="modal.dismiss()" style="cursor: pointer">
+            ANNULLA</button>
+          <button type="button" class="btn btn-primary" aria-label="action" (click)="eliminaRicetta(ricetta._id.toString())" style="cursor: pointer">
+            ELIMINA RICETTA
+          </button>
+        </div>
+      </ng-template>
+
+      <ng-template #modalModify let-modal class="modalModify-div">
+        <form [formGroup]="ricettaForm" (ngSubmit)="modificaRicetta(ricetta._id.toString())">
+          <div class="modal-header">
+            <h2><strong>Attenzione</strong></h2>
+            <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()" style="cursor: pointer"></button>
+          </div>
+          <div class="modal-body">
+            <h6><strong>Titolo della ricetta</strong></h6>
+            <input type="text" formControlName="title" class="form-control">
+            <h6><strong>Descrizione</strong></h6>
+            <ckeditor [editor]="Editor" [config]="editorConfig" formControlName="description" class="form-control" ></ckeditor>
+            <h6><strong>Scrivi l'URL della foto</strong></h6>
+            <input type="url" formControlName="image" class="form-control">
+            <h6><strong>Difficoltà</strong></h6>
+            <input type="text" formControlName="difficulty" class="difficolta-text form-control">
+            <h6><strong>Pubblica la ricetta<input class="form-check-input me-2" type="checkbox" formControlName="published" style="margin-left: 7px;"></strong></h6>
+            <button type="submit" class="btn btn-primary" (click)="modal.dismiss()">MODIFICA RICETTA</button>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn" aria-label="cancel" (click)="modal.dismiss()" style="cursor: pointer">ANNULLA</button>
+          </div>
+        </form>
+      </ng-template>
 
     </div>
-  </div>
+
+<!-- </ng-template> -->
+
   <ng-content select="[secondaIncursione]"></ng-content>
   <div class="container-pagination" *ngIf="pag != 'home'">
     <!-- <ngb-pagination [collectionSize]="totRicette.length * 2 + (ricettePerPagina * 2)" [(page)]="page" aria-label="Default pagination">
@@ -37,3 +103,6 @@
   </div>
 
 </div>
+
+<p-toast position="bottom-right"></p-toast>
+
